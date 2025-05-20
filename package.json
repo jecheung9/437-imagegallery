@@ -10,5 +10,8 @@
   "description": "",
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "devDependencies": {
+    "@types/express": "^5.0.2"
+  }
 }
