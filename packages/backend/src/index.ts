@@ -1,11 +1,15 @@
 import express, { Request, Response } from "express";
 import dotenv from "dotenv";
 import { ValidRoutes } from "./shared/ValidRoutes";
-import { IMAGES } from "./shared/ApiImageData";
+import { connectMongo } from "./connectMongo";
+import { ImageProvider } from "./ImageProvider";
 
 dotenv.config(); // Read the .env file in the current working directory, and load values into process.env.
 const PORT = process.env.PORT || 3000;
 const STATIC_DIR = process.env.STATIC_DIR || "public";
+
+const mongoClient = connectMongo();
+const imageProvider = new ImageProvider(mongoClient);
 
 const app = express();
 app.use(express.static(STATIC_DIR));
@@ -21,8 +25,15 @@ app.get("/hello", (req: Request, res: Response) => {
 });
 
 app.get("/api/images", async (req: Request, res: Response) => {
-    await waitDuration(1000);
-    res.json(IMAGES);
+    await waitDuration(1000)
+        .then(() => {
+            return imageProvider.getAllImagesWithUsers();
+            // return imageProvider.getAllImages();
+        }).then((data) => {
+            res.json(data);
+        }).catch(() => {
+            res.status(500).json({ error: "Failed to fetch images" });
+        });
 });
 
 app.get(Object.values(ValidRoutes), (req: Request, res: Response) => {
