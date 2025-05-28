@@ -1,12 +1,12 @@
 import { MongoClient, ObjectId, Collection } from "mongodb";
 
 interface IImageDocument {
-    _id: any;
+    _id: ObjectId;
     src: string;
     name: string;
     authorId: string;
     author?: {
-        _id: any;
+        _id: string;
         username: string;
         email: string;
   };
@@ -28,32 +28,52 @@ export class ImageProvider {
     }
 
 
-    getAllImagesWithUsers() {
-        return this.collection.aggregate([
-        {
-            $lookup: {
-            from: process.env.USERS_COLLECTION_NAME,
-            localField: "authorId",
-            foreignField: "_id",
-            as: "author",
-            },
-        },
-        {
-            $unwind: "$author" 
-        },
-        {
-            $project: {
-            id: "$_id", //id and _id need duplication (not sure how to fix without renaming to _id over id)
-            _id: 1,
-            src: 1,
-            name: 1,
-            author: {
-                _id: 1,
-                username: 1,
-                email: 1
-            }
-            }
+    getAllImagesWithUsers(nameFilter?: string) {
+        const pipeline: any[] = [];
+        if (nameFilter) {
+            pipeline.push({
+                $match: {
+                    name: { $regex: new RegExp(nameFilter, "i") }
+                }
+            });
         }
-        ]).toArray();
+
+        pipeline.push(
+            {
+                $lookup: {
+                    from: process.env.USERS_COLLECTION_NAME,
+                    localField: "authorId",
+                    foreignField: "_id",
+                    as: "author",
+                },
+            },
+            {
+                $unwind: "$author"
+            },
+            {
+                $project: {
+                    id: "$_id", //id and _id need duplication (not sure how to fix without renaming to _id over id)
+                    _id: 1,
+                    src: 1,
+                    name: 1,
+                    author: {
+                        _id: 1,
+                        username: 1,
+                        email: 1
+                    }
+                }
+            }
+        );
+        return this.collection.aggregate(pipeline).toArray();
     }
+    
+
+    async updateImageName(imageId: string, newName: string): Promise<number> {
+        const updatedName = await this.collection.updateOne(
+            { _id: new ObjectId(imageId) },
+            { $set: { name: newName } }
+        );
+        return updatedName.matchedCount;
+    }
+    
 }
