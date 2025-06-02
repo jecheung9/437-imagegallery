@@ -75,5 +75,9 @@ export class ImageProvider {
         );
         return updatedName.matchedCount;
     }
+
+    getImagebyId(imageid: string) {
+        return this.collection.findOne({ _id: new ObjectId(imageid)})
+    }
     
 }

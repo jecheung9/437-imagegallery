@@ -38,6 +38,12 @@ export function registerImageRoutes(app: express.Application, imageProvider: Ima
     app.put("/api/images/:id", (req: Request, res: Response, next: NextFunction) => {
         const imageId = req.params.id;
         const newName = req.body.name;
+        const user = req.user?.username;
+
+        if (!user) {
+            res.status(401).send();
+            return;
+        }
 
         if (!ObjectId.isValid(imageId)) {
             res.status(404).send({
@@ -50,7 +56,7 @@ export function registerImageRoutes(app: express.Application, imageProvider: Ima
         if (typeof newName !== "string") {
             res.status(400).send({
             error: "Bad Request",
-            message: "Details about exactly how the request was malformed"
+            message: "bad format"
             });
             return;
         }
@@ -62,11 +68,30 @@ export function registerImageRoutes(app: express.Application, imageProvider: Ima
             });
             return;
         }
-        
-        imageProvider.updateImageName(imageId, newName)
-            .then(() => {
-                res.status(204).send();
-                return;
+
+        imageProvider.getImagebyId(imageId)
+            .then(image => {
+                if (!image) {
+                    res.status(404).send({
+                        error: "Not Found",
+                        message: "image not found"
+                    });
+                    return;
+                }
+
+                if (image.authorId !== user) {
+                    res.status(403).send({
+                        error: "Unauthorized",
+                        message: "not the right user"
+                    });
+                    return;
+                }
+                return imageProvider.updateImageName(imageId, newName)
+            })
+            .then((result) => {
+                if (result !== undefined) {
+                    res.status(204).send();
+                }
             }).catch(() => {
                 res.status(500).json({ error: "Failed to update image" });
                 return;

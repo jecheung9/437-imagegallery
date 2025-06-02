@@ -1,27 +1,18 @@
-### Get all images
-# This is a comment
+### Get all images (Lab 24a)
 GET http://localhost:3000/api/images
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNodW5reWxvdmVyMjMiLCJpYXQiOjE3NDg4NDU3MjcsImV4cCI6MTc0ODkzMjEyN30.htubPKbCxrnsf3Q2vznFY6vNxi1Jc6gArb-aGyWg4UQ
 
-### A second example.  Each request must be delimited by a triple hash
-POST http://localhost:3000/api/test
-Content-Type: application/json # Content-Type header is a must if you're sending JSON
-# Request body separated from headers by newline
-
-{ "a": 1, "b": 2 }
+### Get all images with no access (Lab 24a)
+GET http://localhost:3000/api/images
 
 ### Search for images whose name contains a particular substring (in this case, husk)
 GET http://localhost:3000/api/images/search?name=husk
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNodW5reWxvdmVyMjMiLCJpYXQiOjE3NDg4NDU3MjcsImV4cCI6MTc0ODkzMjEyN30.htubPKbCxrnsf3Q2vznFY6vNxi1Jc6gArb-aGyWg4UQ
 
-### Change name of first picture (uses their objectid)
-PUT http://localhost:3000/api/images/6832e2a944a3c72098d1382c
-Content-Type: application/json
-
-{
-  "name": "my new name2"
-}
 
 ### Error check 1: image doesn't exist
 PUT http://localhost:3000/api/images/3123123123
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNodW5reWxvdmVyMjMiLCJpYXQiOjE3NDg4NDU3MjcsImV4cCI6MTc0ODkzMjEyN30.htubPKbCxrnsf3Q2vznFY6vNxi1Jc6gArb-aGyWg4UQ
 Content-Type: application/json
 
 {
@@ -30,16 +21,82 @@ Content-Type: application/json
 
 ### Error check 2: improper format
 PUT http://localhost:3000/api/images/6832e2a944a3c72098d1382c
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNodW5reWxvdmVyMjMiLCJpYXQiOjE3NDg4NDU3MjcsImV4cCI6MTc0ODkzMjEyN30.htubPKbCxrnsf3Q2vznFY6vNxi1Jc6gArb-aGyWg4UQ
 Content-Type: application/json
 
 {
   "nameeee": "error two"
 }
 
-### Error check 2: improper format
+### Error check 3: name too long
 PUT http://localhost:3000/api/images/6832e2a944a3c72098d1382c
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNodW5reWxvdmVyMjMiLCJpYXQiOjE3NDg4NDU3MjcsImV4cCI6MTc0ODkzMjEyN30.htubPKbCxrnsf3Q2vznFY6vNxi1Jc6gArb-aGyWg4UQ
 Content-Type: application/json
 
 {
   "name": "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"
 }
+
+### user registration, 409 on repeat, 201 on new (lab 24a)
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{ "username": "chunkylover23", "password": "password" }
+
+
+### 400 on invalid register payload (lab 24a)
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{ "username": "newuseeeeeer"}
+
+### Good Login (lab 24a)
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{ "username": "chunkylover23", "password": "password" }
+
+### Getting token for a different user
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{ "username": "newuser", "password": "password" }
+
+### Login: did not provide a username or password (lab 24a)
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{ "password": "password" }
+
+### Login: Bad username or password (lab 24a)
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{ "username": "newuser", "password": "passwordddddddddd" }
+
+### Change name of first picture if you are user (lab 24a)
+PUT http://localhost:3000/api/images/6832e2a944a3c72098d1382c
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNodW5reWxvdmVyMjMiLCJpYXQiOjE3NDg4NDU3MjcsImV4cCI6MTc0ODkzMjEyN30.htubPKbCxrnsf3Q2vznFY6vNxi1Jc6gArb-aGyWg4UQ
+Content-Type: application/json
+
+{
+  "name": "sheep123"
+}
+
+### 401 image name change (lab 24a)
+PUT http://localhost:3000/api/images/6832e2a944a3c72098d1382c
+Content-Type: application/json
+
+{
+  "name": "sheep123"
+}
+
+### 403 image name change, different user (lab 24a)
+PUT http://localhost:3000/api/images/6832e2a944a3c72098d1382c
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im5ld3VzZXIiLCJpYXQiOjE3NDg4NDYxNjMsImV4cCI6MTc0ODkzMjU2M30.F1CWH3cFVqiEoQUZ9TNSyNzI2w1H7LAi5pSl33pWWAY
+Content-Type: application/json
+
+{
+  "name": "sheep123"
+}
+
