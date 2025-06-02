@@ -9,6 +9,7 @@ export function registerImageRoutes(app: express.Application, imageProvider: Ima
     
     app.get("/api/images", async (req: Request, res: Response) => {
         await waitDuration(1000)
+        // await waitDuration(Math.random() * 5000)
             .then(() => {
                 return imageProvider.getAllImagesWithUsers();
                 // return imageProvider.getAllImages();
@@ -22,6 +23,7 @@ export function registerImageRoutes(app: express.Application, imageProvider: Ima
     app.get("/api/images/search", async (req: Request, res: Response) => {
         const nameQuery = typeof req.query.name === 'string' ? req.query.name : '';
         await waitDuration(1000)
+        // await waitDuration(Math.random() * 5000)
             .then(() => {
                 return imageProvider.getAllImagesWithUsers(nameQuery);
             }).then((data) => {

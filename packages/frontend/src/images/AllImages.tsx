@@ -5,20 +5,20 @@ interface IAllImagesProps {
     imageData: IApiImageData[];
     isLoading: boolean;
     hasError: boolean;
+    searchPanel: React.ReactNode;
 }
 
 export function AllImages(props: IAllImagesProps) {
-    if (props.isLoading) {
-        return <p> Loading...</p>
-    }
-    
-    if (props.hasError) {
-        return <p> There was an error...</p>
-    }
     return (
         <>
             <h2>All Images</h2>
-            <ImageGrid images={props.imageData} />
+            {props.searchPanel}
+
+            {props.isLoading && <p>Loading...</p>}
+            {props.hasError && <p>There was an error...</p>}
+            {!props.isLoading && !props.hasError && (
+                <ImageGrid images={props.imageData} />
+            )}
         </>
     );
 }

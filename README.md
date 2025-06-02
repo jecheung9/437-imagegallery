@@ -1,3 +1,3 @@
-### CSC 437 - Labs 18 to 22
+### CSC 437 - Image Gallery
 
 https://jcheun36.csse.dev/

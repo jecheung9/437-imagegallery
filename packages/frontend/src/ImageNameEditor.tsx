@@ -16,12 +16,18 @@ export function ImageNameEditor(props: INameEditorProps) {
     async function handleSubmitPressed() {
         setRequestInProgress(true);
         setHasError(false);
-        fetch("/api/images")
+        fetch(`/api/images/${props.imageId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ name: input }),
+        })
             .then(res => {
                 if (res.status >= 400) {
                     throw new Error("HTTP " + res.status);
                 }
-                return res.json();       
+                return;    
             }).then(() => {
                 setIsEditingName(false);
                 props.changeName(props.imageId, input);
