@@ -7,6 +7,7 @@ interface IImageDetails {
     isLoading: boolean;
     hasError: boolean;
     changeName: (id: string, newName: string) => void; 
+    authToken: string;
 }
 
 export function ImageDetails(props: IImageDetails) {
@@ -29,7 +30,7 @@ export function ImageDetails(props: IImageDetails) {
         <>
             <h2>{image.name}</h2>
             <p>By {image.author.username}</p>
-            <ImageNameEditor initialValue={image.name} imageId={image.id} changeName={props.changeName} />
+            <ImageNameEditor initialValue={image.name} imageId={image.id} changeName={props.changeName} authToken={props.authToken} />
             <img className="ImageDetails-img" src={image.src} alt={image.name} />
         </>
     )

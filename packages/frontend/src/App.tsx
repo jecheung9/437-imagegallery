@@ -4,10 +4,11 @@ import { UploadPage } from "./UploadPage.tsx";
 import { LoginPage } from "./LoginPage.tsx";
 import { Routes, Route } from "react-router";
 import { MainLayout } from "./MainLayout.tsx";
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { ValidRoutes } from "../../backend/src/shared/ValidRoutes.ts"
 import type { IApiImageData } from "../../backend/src/shared/ApiImageData.ts";
 import { ImageSearchForm } from "./images/ImageSearchForm.tsx";
+import { ProtectedRoute } from "./ProtectedRoute.tsx";
 
 function App() {
     const [imageData, setImageData] = useState<IApiImageData[]>([])
@@ -15,9 +16,10 @@ function App() {
     const [hasError, setHasError] = useState(false);
     const [searchContents, setSearchContents] = useState("");
     const recentRequestNumber = useRef(0);
+    const [authToken, setAuthToken] = useState("");
 
 
-    function fetchImages(search: string) {
+    function fetchImages(search: string, authToken: string) {
         setIsLoading(true);
         setHasError(false);
 
@@ -29,7 +31,11 @@ function App() {
         }
 
         const url = "api/images" + (params.toString() ? `/search?${params.toString()}` : "");
-        fetch(url)
+        fetch(url, {
+            headers: {
+                Authorization: `Bearer ${authToken}`,
+            }
+        })
             .then((res) => {
                 if (res.status >= 400) {
                     throw new Error("HTTP " + res.status);
@@ -49,9 +55,6 @@ function App() {
             });
     }
 
-    useEffect(() => {
-        fetchImages("");
-    }, []);
 
     function changeName(id: string, newName: string) {
         const updatedImages = imageData.map((image) => {
@@ -64,7 +67,12 @@ function App() {
     }
 
     function handleImageSearch() {
-        fetchImages(searchContents);
+        fetchImages(searchContents, authToken);
+    }
+
+    function handleLogin(token: string) {
+        setAuthToken(token);
+        fetchImages("", token)
     }
 
     const searchForm = (
@@ -78,10 +86,35 @@ function App() {
     return (
         <Routes>
             <Route path={ValidRoutes.HOME} element={<MainLayout />}>
-                <Route index element={<AllImages imageData={imageData} isLoading={isLoading} hasError={hasError} searchPanel={searchForm} />} />
-                <Route path={ValidRoutes.UPLOAD} element={<UploadPage />} />
-                <Route path={ValidRoutes.LOGIN} element={<LoginPage />} />
-                <Route path={ValidRoutes.IMAGES} element={<ImageDetails imageData={imageData} isLoading={isLoading} hasError={hasError} changeName={changeName} />} />
+                <Route index element={
+                    <ProtectedRoute authToken={authToken}>
+                        <AllImages
+                            imageData={imageData}
+                            isLoading={isLoading}
+                            hasError={hasError}
+                            searchPanel={searchForm} />
+                    </ProtectedRoute>} />
+                <Route path={ValidRoutes.UPLOAD} element={
+                    <ProtectedRoute authToken={authToken}>
+                        <UploadPage />
+                    </ProtectedRoute>} />
+                <Route path={ValidRoutes.LOGIN} element={
+                    <LoginPage
+                        isRegistering={false}
+                        onLogin={handleLogin} />} />
+                <Route path={ValidRoutes.REGISTER} element={
+                    <LoginPage
+                        isRegistering={true}
+                        onLogin={handleLogin} />} />
+                <Route path={ValidRoutes.IMAGES} element={
+                    <ProtectedRoute authToken={authToken}>
+                    <ImageDetails
+                        imageData={imageData}
+                        isLoading={isLoading}
+                        hasError={hasError}
+                        changeName={changeName}
+                        authToken={authToken} />
+                    </ProtectedRoute>} />
             </Route>
         </Routes>
     )

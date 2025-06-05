@@ -4,6 +4,7 @@ interface INameEditorProps {
     initialValue: string;
     imageId: string;
     changeName: (id: string, newName: string) => void; 
+    authToken: string;
 }
 
 export function ImageNameEditor(props: INameEditorProps) {
@@ -19,7 +20,8 @@ export function ImageNameEditor(props: INameEditorProps) {
         fetch(`/api/images/${props.imageId}`, {
             method: "PUT",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${props.authToken}` 
             },
             body: JSON.stringify({ name: input }),
         })

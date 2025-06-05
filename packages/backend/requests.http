@@ -76,7 +76,7 @@ Content-Type: application/json
 
 ### Change name of first picture if you are user (lab 24a)
 PUT http://localhost:3000/api/images/6832e2a944a3c72098d1382c
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNodW5reWxvdmVyMjMiLCJpYXQiOjE3NDg4NDU3MjcsImV4cCI6MTc0ODkzMjEyN30.htubPKbCxrnsf3Q2vznFY6vNxi1Jc6gArb-aGyWg4UQ
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNodW5reWxvdmVyMjMiLCJpYXQiOjE3NDkwOTMxNDMsImV4cCI6MTc0OTE3OTU0M30.coKRsTWD3qRrjfLAn07Wk8pSxAEm1iHoXQaOWMVTevU
 Content-Type: application/json
 
 {
