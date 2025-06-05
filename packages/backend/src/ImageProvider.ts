@@ -79,5 +79,14 @@ export class ImageProvider {
     getImagebyId(imageid: string) {
         return this.collection.findOne({ _id: new ObjectId(imageid)})
     }
+
+    async createImage(src: string, name: string, authorId: string) {
+        return this.collection.insertOne({
+            _id: new ObjectId(),
+            src,
+            name,
+            authorId
+        });
+    }
     
 }

@@ -75,6 +75,10 @@ function App() {
         fetchImages("", token)
     }
 
+    function handleUpload() {
+        fetchImages(searchContents, authToken)
+    }
+
     const searchForm = (
         <ImageSearchForm
             searchString={searchContents}
@@ -96,7 +100,9 @@ function App() {
                     </ProtectedRoute>} />
                 <Route path={ValidRoutes.UPLOAD} element={
                     <ProtectedRoute authToken={authToken}>
-                        <UploadPage />
+                        <UploadPage
+                            authToken={authToken}
+                            onUpload={handleUpload} />
                     </ProtectedRoute>} />
                 <Route path={ValidRoutes.LOGIN} element={
                     <LoginPage

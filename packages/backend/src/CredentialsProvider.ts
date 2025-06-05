@@ -9,8 +9,10 @@ interface ICredentialsDocument {
 
 export class CredentialsProvider {
     private readonly collection: Collection<ICredentialsDocument>;
+    private readonly mongoClient: MongoClient;
 
     constructor(mongoClient: MongoClient) {
+        this.mongoClient = mongoClient;
         const COLLECTION_NAME = process.env.CREDS_COLLECTION_NAME;
         if (!COLLECTION_NAME) {
             throw new Error("Missing CREDS_COLLECTION_NAME from env file");
@@ -31,7 +33,18 @@ export class CredentialsProvider {
             _id: username,
             username: username,
             password: hashedPassword
-        })
+        });
+
+        const usersCollectionName = process.env.USERS_COLLECTION_NAME;
+        if (!usersCollectionName) {
+            throw new Error("Missing USERS_COLLECTION_NAME from env file");
+        }
+        const usersCollection = this.mongoClient.db().collection<{ _id: string; username: string; email: string }>(usersCollectionName);
+        await usersCollection.insertOne({
+            _id: username,
+            username,
+            email: `${username}@example.com`, 
+        });
 
         return true;
     }

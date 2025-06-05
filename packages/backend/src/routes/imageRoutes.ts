@@ -2,7 +2,8 @@ import express, { Request, Response } from "express";
 import { ImageProvider } from "../ImageProvider";
 import { waitDuration } from "../index";
 import { NextFunction } from "express";
-import { ObjectId } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
+import { imageMiddlewareFactory, handleImageFileErrors } from "../imageUploadMiddleware";
 
 export function registerImageRoutes(app: express.Application, imageProvider: ImageProvider) {
 
@@ -96,7 +97,35 @@ export function registerImageRoutes(app: express.Application, imageProvider: Ima
                 res.status(500).json({ error: "Failed to update image" });
                 return;
             });
-        });
+    });
+    
+    app.post("/api/images",
+        imageMiddlewareFactory.single("image"),
+        handleImageFileErrors,
+        async (req: Request, res: Response) => {
+            if (!req.file || !req.body.name) {
+                res.status(400).send("Missing file or name");
+                return;
+            }
+
+            const name = req.body.name;
+            const filename = req.file.filename;
+            const src = `/uploads/${filename}`;
+            const authorId = req.user?.username;
+            if (!authorId) {
+                res.status(401).send();
+                return;
+            }
+
+            imageProvider.createImage(src, name, authorId)
+                .then(() => {
+                    res.status(201).send();
+                })
+                .catch(() => {
+                    res.status(500).send("Something went wrong");
+                });
+        }
+    );
 
 }
 
